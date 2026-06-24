@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EARN Grant Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bark:#2B2117;
+    --soil:#3D3122;
+    --moss:#5B6B3A;
+    --moss-dim:#7C8A5C;
+    --clay:#B5612F;
+    --clay-light:#D89A6F;
+    --sand:#EFE7D6;
+    --paper:#F7F2E7;
+    --line:rgba(43,33,23,0.14);
+    --line-soft:rgba(43,33,23,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--bark);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px;}
+
+  header{padding:56px 0 36px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-size:12px;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--moss);font-weight:600;margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(38px,6vw,60px);line-height:1.02;letter-spacing:-0.02em;
+    color:var(--soil);margin-bottom:18px;
+  }
+  h1 em{font-style:italic;color:var(--clay);}
+  .lede{font-size:17px;max-width:60ch;color:var(--soil);}
+  .meta{margin-top:18px;font-size:13px;color:var(--moss-dim);}
+
+  .stats{display:flex;flex-wrap:wrap;gap:14px;padding:28px 0;border-bottom:1px solid var(--line);}
+  .stat{flex:1;min-width:130px;}
+  .stat .n{font-family:'Fraunces',serif;font-size:34px;font-weight:500;color:var(--soil);line-height:1;}
+  .stat .l{font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--moss-dim);margin-top:6px;}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:22px 0;position:sticky;top:0;background:var(--paper);z-index:5;border-bottom:1px solid var(--line-soft);}
+  input[type=text],select{
+    font-family:inherit;font-size:14px;color:var(--bark);
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:8px;padding:9px 12px;height:40px;
+  }
+  input[type=text]{flex:1;min-width:180px;}
+  input[type=text]:focus,select:focus{outline:none;border-color:var(--moss);}
+  select{cursor:pointer;}
+
+  .grid{padding:8px 0 64px;display:flex;flex-direction:column;gap:0;}
+  .row{
+    display:grid;grid-template-columns:1fr auto;gap:18px;
+    padding:22px 0;border-bottom:1px solid var(--line-soft);align-items:start;
+  }
+  .row:hover{background:rgba(91,107,58,0.035);}
+  .name{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:var(--soil);text-decoration:none;line-height:1.2;display:inline-block;}
+  .name:hover{color:var(--clay);}
+  .name .arr{font-size:13px;opacity:0.5;}
+  .note{font-size:14px;color:var(--soil);margin-top:8px;max-width:62ch;}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .tag{font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;padding:4px 10px;border-radius:5px;}
+  .region{font-size:13px;color:var(--moss-dim);}
+  .right{text-align:right;min-width:150px;}
+  .deadline{font-size:14px;font-weight:600;white-space:nowrap;}
+  .award{font-size:13px;color:var(--moss-dim);margin-top:4px;}
+  select.status{margin-top:12px;height:34px;font-size:12px;padding:5px 8px;}
+
+  .d-soon{color:var(--clay);}
+  .d-mid{color:#9A7B1E;}
+  .d-far{color:var(--moss-dim);}
+  .d-roll{color:var(--moss);}
+  .d-past{color:var(--moss-dim);opacity:0.7;}
+
+  .empty{padding:48px 0;text-align:center;color:var(--moss-dim);font-size:15px;}
+
+  footer{border-top:1px solid var(--line);padding:32px 0 56px;font-size:13px;color:var(--moss-dim);max-width:70ch;}
+  footer strong{color:var(--soil);font-weight:600;}
+
+  @media (max-width:640px){
+    .row{grid-template-columns:1fr;}
+    .right{text-align:left;}
+    select.status{margin-top:8px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Earth Allies Restoration Network</div>
+    <h1>Grant <em>tracker</em></h1>
+    <p class="lede">Live shortlist of foundations and funds in restoration, agroforestry, food sovereignty, and regenerative agriculture aligned with EARN's work in East Africa, expansion into West Africa, and a Central America start in Mexico and Guatemala.</p>
+    <p class="meta">Last compiled 24 June 2026 &middot; Status changes are saved in your browser &middot; Verify every deadline on the funder's own page before applying</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search funders, regions, focus…" />
+    <select id="focus">
+      <option value="">All focus areas</option>
+      <option value="agroforestry">Agroforestry / reforestation</option>
+      <option value="latam">Latin America</option>
+      <option value="restoration">Ecological restoration</option>
+      <option value="foodsov">Food sovereignty</option>
+      <option value="regenag">Regenerative agriculture</option>
+      <option value="general">General environment</option>
+    </select>
+    <select id="status">
+      <option value="">All statuses</option>
+      <option value="new">New lead</option>
+      <option value="watching">Watching</option>
+      <option value="drafting">Drafting</option>
+      <option value="submitted">Submitted</option>
+      <option value="passed">Pass</option>
+    </select>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <p><strong>How to keep this current:</strong> this is a static snapshot. To refresh it, ask Claude to regenerate the file with new searches, then re-upload it to your host. Rolling funders have no fixed deadline — check them quarterly. A few large institutional funders list award sizes as "varies"; confirm on their sites before building a pipeline around them.</p>
+  </footer>
+</div>
+
+<script>
+const COMPILED = new Date('2026-06-24');
+
+const FOCUS = {
+  agroforestry:{label:'Agroforestry',bg:'#E7EDD6',fg:'#3B4A18'},
+  latam:{label:'Latin America',bg:'#F3E0D4',fg:'#8A3E1B'},
+  restoration:{label:'Restoration',bg:'#D9E8DE',fg:'#1F5740'},
+  foodsov:{label:'Food sovereignty',bg:'#EFE2EC',fg:'#6B2447'},
+  regenag:{label:'Regen agriculture',bg:'#F4EBD3',fg:'#6E5210'},
+  general:{label:'Environment',bg:'#E6E3DA',fg:'#44443F'}
+};
+const STATUS = {new:'New lead',watching:'Watching',drafting:'Drafting',submitted:'Submitted',passed:'Pass'};
+
+const GRANTS = [
+  {name:"UNDP GEF Small Grants Programme (SGP)",focus:"restoration",award:"up to $50,000",deadline:"rolling",region:"Global South",url:"https://about.restor.eco/blog/funding-opportunities-for-the-restor-community",note:"Direct to community-based orgs and NGOs. Among the strongest structural fits for EARN's on-the-ground work in East Africa and Latin America."},
+  {name:"Agroecology Fund",focus:"foodsov",award:"~$1M per cycle (pooled)",deadline:"rolling",region:"LatAm, Africa, Asia",url:"https://agroecologyfund.org/",note:"Donor collaborative funding agroecology and food sovereignty movements. Supports La Via Campesina peasant agroecology schools across regions EARN works in."},
+  {name:"Global Greengrants Fund",focus:"restoration",award:"small grants (~$5k–$15k)",deadline:"rolling",region:"Global",url:"https://www.greengrants.org/",note:"Fast, flexible small grants to grassroots environmental groups in the Global South. Low barrier to entry; good for seeding regional work."},
+  {name:"US Fish & Wildlife — Latin America Regional Program",focus:"latam",award:"varies (federal)",deadline:"2026-09-30",region:"Mexico, Guatemala +",url:"https://www.fws.gov/service/latin-america-regional-grant-program",note:"Measurable conservation results in high-biodiversity landscapes; covers Mexico and Central America including Guatemala. Directly fits EARN's Central America start. Verify the cycle date — federal timelines shift."},
+  {name:"National Geographic Society Grants",focus:"restoration",award:"$20k–$100k",deadline:"rolling",region:"All continents",url:"https://about.restor.eco/blog/funding-opportunities-for-the-restor-community",note:"Science, storytelling, and education focus areas including land. Mexico and Central America fall within its stated geographic priorities."},
+  {name:"Initiative 20x20 (WRI network)",focus:"latam",award:"partnership / finance links",deadline:"rolling",region:"Latin America incl. Mexico, Guatemala",url:"https://initiative20x20.org/restoration-projects",note:"Not a grant per se — restoration partnerships plus corporate and carbon finance connections, with active Mexico and Central America members. Aligns with the carbon-finance mapping EARN has been doing."},
+  {name:"McKnight Foundation — Global Collaboration for Resilient Food Systems",focus:"regenag",award:"varies (program grants)",deadline:"rolling",region:"East/West Africa, Andes",url:"https://www.mcknight.org/",note:"Farmer-centered agroecological research. Works directly in EARN's African regions and the Andes. Strong thematic and geographic overlap."},
+  {name:"Global Alliance for the Future of Food",focus:"regenag",award:"collaborative / convening",deadline:"rolling",region:"Kenya, Tanzania, Brazil, more",url:"https://futureoffood.org/",note:"Funder collaborative scaling regenerative and agroecological finance. More partner/network than direct grantmaker — useful for visibility and connections."},
+  {name:"GRAIN",focus:"foodsov",award:"varies",deadline:"rolling",region:"Asia, Africa, Latin America",url:"https://agroecologyfund.org/124-food-and-agriculture-organizations-to-watch-in-2024/",note:"Supports small farmers and community-controlled food systems, seeds, and land rights. Movement-aligned; good fit for permaculture education framing."},
+  {name:"Catalyzing Agroforestry Grant Program (CAGP)",focus:"agroforestry",award:"direct + technical assistance",deadline:"2026-07-01",region:"US (next cycle Jul 2026)",url:"https://www.catalyzingagroforestry.org/cagp",note:"2027 cycle opens July 2026. US-focused, so a fit question for EARN — flag for the US-based program threads, not the African/LatAm ones."},
+  {name:"CS Fund — Agrobiodiversity",focus:"foodsov",award:"varies",deadline:"rolling",region:"Global",url:"https://www.instrumentl.com/browse-grants/grants-for-environmental-conservation",note:"Seeds, soils, pollinators; agroecology and traditional knowledge. Aligns tightly with permaculture education and seed-system work."},
+  {name:"Rockefeller Brothers Fund — Sustainable Development",focus:"general",award:"varies",deadline:"rolling",region:"Global",url:"https://www.instrumentl.com/browse-grants/grants-for-environmental-conservation",note:"Ecological stewardship, economic viability, and social equity. Larger institutional funder — worth a relationship-building approach over a cold application."},
+  {name:"F5 Tech for Good Grant",focus:"general",award:"varies",deadline:"2026-12-01",region:"Africa, LatAm, US",url:"https://www.f5.com/company/blog/f5s-2025-tech-for-good-grants",note:"Climate plus marginalized communities, with a technology angle. 2026 cycle date TBA."},
+  {name:"International Foundation Grant (Global South)",focus:"general",award:"project-based",deadline:"2027-04-15",region:"Global South",url:"https://opportunitiesforyouth.org/2026/04/10/international-foundation-grant-2026-complete-application-guide-timeline-and-funding-opportunity-for-nonprofits-in-the-global-south/",note:"Agriculture, environment, education. LOI portal caps at 150 submissions — apply early the moment the 2027 cycle opens."},
+  {name:"Fundación Biodiversidad (Spain)",focus:"restoration",award:"competitive",deadline:"rolling",region:"Spain / ecological transition",url:"https://about.restor.eco/blog/funding-opportunities-for-the-restor-community",note:"Funds ecological transition and biodiversity. Spanish-language application."},
+  {name:"The Rufford Foundation",focus:"restoration",award:"small grants",deadline:"rolling",region:"Developing countries",url:"https://about.restor.eco/blog/funding-opportunities-for-the-restor-community",note:"Conservation in developing countries; threatened-species requirement. Niche, but possible per-project fit where EARN's restoration protects specific habitat."},
+  {name:"Sahee Foundation — Peru & Eswatini",focus:"regenag",award:"project grants",deadline:"2026-12-31",region:"Peru, Eswatini (outside current focus)",url:"https://www2.fundsforngos.org/listing/curated-list-of-funding-opportunities-in-agriculture-food-and-nutrition-sector/",note:"Sustainable development in agriculture, environment, health, education — but Peru and Eswatini sit outside EARN's current East/West Africa and Mexico/Guatemala focus. Keep only if scope widens."},
+  {name:"Regenerative Agriculture Foundation (RAF)",focus:"regenag",award:"varies (invitation-based)",deadline:"rolling (idea form)",region:"Primarily US",url:"https://hub.impactstars.com/blog/the-top-17-foundations-funding-regenerative-agriculture-and-local-food-systems",note:"Invitation-only, but accepts idea submissions via web form. Systems-level changemakers. Long-shot cold, but worth planting an idea submission."},
+  {name:"FAO — AFR100 Direct Beneficiary Grants",focus:"agroforestry",award:"up to $50,000",deadline:"rolling (2026 open)",region:"Africa",url:"https://opportunitiesforyouth.org/2026/06/01/fao-supporting-afr100-programme-direct-beneficiary-grants-2026-up-to-usd-50000-for-forest-and-landscape-restoration-projects-in-africa/",note:"Forest and landscape restoration across Africa — afforestation, agroforestry, nurseries, restoration value chains. One of the closest fits for EARN's East and West Africa work. German-funded via FAO."},
+  {name:"WWF — Community Forest Restoration Grants",focus:"restoration",award:"up to $15,000",deadline:"rolling",region:"Kenya, Uganda, Tanzania, Guatemala +",url:"https://www.worldwildlife.org/our-work/science/russell-e-train-education-for-nature/forest-restoration-grants/",note:"Eligible countries explicitly include Kenya, Uganda, Tanzania, Ghana, Guatemala, and Honduras — covers EARN's African footprint and Central America start in one program. Community-led restoration."},
+  {name:"Ford Environmental Grants Program",focus:"restoration",award:"varies",deadline:"2027-05-29",region:"Guatemala, Panama, Costa Rica +",url:"https://www2.fundsforngos.org/tag/guatemala/",note:"Funds implemented (not conceptual) projects in biodiversity, food security, and waste management across Guatemala and Central America. Direct fit for the Guatemala start. Annual cycle — watch for 2027 open."},
+  {name:"Overbrook Foundation",focus:"latam",award:"$20k–$100k",deadline:"by invitation",region:"Mexico, Mesoamerica, Ecuador, Brazil",url:"https://www.terravivagrants.org/group-2-biodiversity-conservation-wildlife/overbrook-foundation/",note:"Biodiversity conservation and agroforestry in Latin America, with explicit emphasis on Mexico and Mesoamerica. No unsolicited proposals — but invites contact from environment/human-rights orgs. Relationship play."},
+  {name:"TREE AID",focus:"agroforestry",award:"project-based (3–5 yr)",deadline:"rolling",region:"West Africa (Sahel)",url:"http://www.bothends.info/service/desertificationfunds.htm",note:"Community tree projects, nurseries, agroforestry, and dryland restoration across the Sahel. Funds long-term regional commitment — well-matched to EARN's West Africa expansion."},
+  {name:"IUCN NL — Land Acquisition Fund",focus:"restoration",award:"€100,000 per project",deadline:"rolling (annual call)",region:"Global South",url:"https://africanngos.org/2026/05/06/african-ngo-funding-opportunities-may-june-2026/",note:"For local conservation NGOs acquiring threatened land, creating reserves, and connecting habitats. Larger award; fits if EARN's model includes securing land for restoration."},
+  {name:"Ceiba Foundation — Seeds of Sustainability",focus:"restoration",award:"$1k–$10k",deadline:"rolling (May annual)",region:"Tropics",url:"https://africanngos.org/2026/05/06/african-ngo-funding-opportunities-may-june-2026/",note:"Biodiversity conservation and sustainable development in the tropics. Small grants, low barrier — $1k–5k for first-timers, up to $10k for returning partners. Good entry point."},
+  {name:"Both ENDS — Drylands & Agroforestry (DAS)",focus:"agroforestry",award:"varies",deadline:"rolling",region:"West African ecoregion",url:"http://www.bothends.info/service/desertificationfunds.htm",note:"Ecosystem restoration, natural regeneration, and agroforestry across the West African ecoregion (Senegal, Mali, Ghana, and neighbors). Directly supports the West Africa expansion."},
+  {name:"Critical Ecosystem Partnership Fund (CEPF)",focus:"restoration",award:"varies (RFP-based)",deadline:"rolling (by RFP)",region:"Biodiversity hotspots",url:"https://www2.fundsforngos.org/tag/latest-grants-and-resources-in-mexico/",note:"Funds civil-society conservation in designated biodiversity hotspots — includes the Eastern Afromontane (East Africa) and Mesoamerica. Check which hotspots have active investment phases."}
+];
+
+const grid = document.getElementById('grid');
+const statsEl = document.getElementById('stats');
+const searchEl = document.getElementById('search');
+const focusEl = document.getElementById('focus');
+const statusEl = document.getElementById('status');
+
+const STORE_KEY = 'earn_grant_status_v1';
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ saved = {}; }
+const state = {};
+GRANTS.forEach((g,i)=>{ state[i] = saved[i] || (g.deadline!=="rolling" && daysOut(g.deadline)<0 ? "watching" : "new"); });
+
+function daysOut(d){ if(d==="rolling"||!d) return null; return Math.round((new Date(d)-COMPILED)/86400000); }
+function persist(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function deadlineParts(d){
+  if(d==="rolling") return {text:"Rolling", cls:"d-roll"};
+  if(/cycle|TBA/i.test(d)) return {text:d, cls:"d-mid"};
+  const n = daysOut(d);
+  const dt = new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  if(n<0) return {text:dt+" · passed", cls:"d-past"};
+  if(n<=45) return {text:dt+" · "+n+"d", cls:"d-soon"};
+  if(n<=120) return {text:dt+" · "+n+"d", cls:"d-mid"};
+  return {text:dt+" · "+n+"d", cls:"d-far"};
+}
+
+function renderStats(){
+  const active = GRANTS.filter((g,i)=>state[i]!=="passed").length;
+  const soon = GRANTS.filter(g=>{const n=daysOut(g.deadline); return n!==null && n>=0 && n<=60;}).length;
+  const rolling = GRANTS.filter(g=>g.deadline==="rolling").length;
+  const cards = [["Funders",GRANTS.length],["Active",active],["Due ≤60 days",soon],["Rolling",rolling]];
+  statsEl.innerHTML = cards.map(c=>`<div class="stat"><div class="n">${c[1]}</div><div class="l">${c[0]}</div></div>`).join('');
+}
+
+function render(){
+  const q = searchEl.value.toLowerCase().trim();
+  const ff = focusEl.value, sf = statusEl.value;
+  let rows = GRANTS.map((g,i)=>({g,i})).filter(({g,i})=>{
+    if(q && !(g.name+g.note+g.region).toLowerCase().includes(q)) return false;
+    if(ff && g.focus!==ff) return false;
+    if(sf && state[i]!==sf) return false;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    const va = sortKey(a.g.deadline), vb = sortKey(b.g.deadline);
+    return va-vb;
+  });
+  if(!rows.length){ grid.innerHTML = `<div class="empty">No funders match these filters.</div>`; return; }
+  grid.innerHTML = rows.map(({g,i})=>{
+    const f = FOCUS[g.focus];
+    const d = deadlineParts(g.deadline);
+    return `<div class="row">
+      <div>
+        <a class="name" href="${g.url}" target="_blank" rel="noopener">${g.name} <span class="arr">↗</span></a>
+        <p class="note">${g.note}</p>
+        <div class="tags">
+          <span class="tag" style="background:${f.bg};color:${f.fg}">${f.label}</span>
+          <span class="region">${g.region}</span>
+        </div>
+      </div>
+      <div class="right">
+        <div class="deadline ${d.cls}">${d.text}</div>
+        <div class="award">${g.award}</div>
+        <select class="status" data-i="${i}">
+          ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${state[i]===k?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.status').forEach(s=>{
+    s.addEventListener('change', e=>{ state[e.target.dataset.i]=e.target.value; persist(); renderStats(); render(); });
+  });
+}
+
+function sortKey(d){
+  if(d==="rolling") return 90000;
+  if(/cycle|TBA/i.test(d)) return 80000;
+  const n = daysOut(d);
+  if(n===null) return 95000;
+  if(n<0) return 70000 + n;
+  return n;
+}
+
+searchEl.addEventListener('input', render);
+focusEl.addEventListener('change', render);
+statusEl.addEventListener('change', render);
+renderStats();
+render();
+</script>
+</body>
+</html>
